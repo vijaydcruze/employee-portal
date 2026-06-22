@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Ticket Booking</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { text-align: center; color: #1e3c72; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .flight-list { display: flex; flex-direction: column; gap: 15px; }
+        .flight-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #fafafa;
+        }
+        .flight-card:hover { border-color: #2a5298; background: #f0f4ff; }
+        .flight-info { flex: 1; }
+        .flight-number { font-size: 24px; font-weight: bold; color: #1e3c72; }
+        .route { font-size: 18px; color: #333; margin: 5px 0; }
+        .details { color: #666; font-size: 14px; }
+        .price-section { text-align: right; }
+        .price { font-size: 28px; font-weight: bold; color: #2a5298; }
+        .seats { color: #666; font-size: 14px; }
+        .booking-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            display: none;
+        }
+        .booking-section.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: #2a5298; }
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-secondary { background: #666; margin-top: 10px; }
+        .ticket {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffecb3 100%);
+            border: 3px dashed #1e3c72;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+        }
+        .ticket.active { display: block; }
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px dashed #1e3c72;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .ticket-title { font-size: 28px; font-weight: bold; color: #1e3c72; }
+        .ticket-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .ticket-item { padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; }
+        .ticket-label { font-size: 12px; color: #666; text-transform: uppercase; }
+        .ticket-value { font-size: 18px; font-weight: bold; color: #333; }
+        .success-message { text-align: center; color: #2e7d32; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ Flight Ticket Booking</h1>
+        <p class="subtitle">Book your dream flight today!</p>
+        
+        <div id="flightList" class="flight-list"></div>
+        
+        <div id="bookingSection" class="booking-section">
+            <h2 id="bookingTitle">Book Your Flight</h2>
+            <div class="form-group">
+                <label>Passenger Name:</label>
+                <input type="text" id="passengerName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="passengerEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Number of Tickets:</label>
+                <input type="number" id="ticketCount" value="1" min="1" max="5">
+            </div>
+            <button class="btn" onclick="selectedFlightIndex > -1 ? ((document.getElementById('passengerName').value.length > 0) && (document.getElementById('passengerEmail').value.length > 0) && (document.getElementById('ticketCount').value > 0) ? (flights[selectedFlightIndex].seats = flights[selectedFlightIndex].seats - document.getElementById('ticketCount').value, bookings[bookings.length] = {name: document.getElementById('passengerName').value, email: document.getElementById('passengerEmail').value, flightNumber: flights[selectedFlightIndex].number, ticketCount: document.getElementById('ticketCount').value, totalPrice: flights[selectedFlightIndex].price * document.getElementById('ticketCount').value}, document.getElementById('ticketName').innerHTML = document.getElementById('passengerName').value, document.getElementById('ticketEmail').innerHTML = document.getElementById('passengerEmail').value, document.getElementById('ticketFlight').innerHTML = flights[selectedFlightIndex].number, document.getElementById('ticketRoute').innerHTML = flights[selectedFlightIndex].origin + ' → ' + flights[selectedFlightIndex].destination, document.getElementById('ticketDate').innerHTML = flights[selectedFlightIndex].date, document.getElementById('ticketTime').innerHTML = flights[selectedFlightIndex].time, document.getElementById('ticketCountDisplay').innerHTML = document.getElementById('ticketCount').value, document.getElementById('ticketPrice').innerHTML = '$' + (flights[selectedFlightIndex].price * document.getElementById('ticketCount').value), alert('🎉 Booking Confirmed!\n\nFlight: ' + flights[selectedFlightIndex].number + '\nPassenger: ' + document.getElementById('passengerName').value + '\nTickets: ' + document.getElementById('ticketCount').value + '\nTotal: $' + (flights[selectedFlightIndex].price * document.getElementById('ticketCount').value)), document.getElementById('bookingSection').className = 'booking-section', document.getElementById('ticket').className = 'ticket active', setTimeout(function(){location.reload();}, 2000)) : alert('⚠️ Please fill all fields correctly!')) : alert('⚠️ Please select a flight first!')">Confirm Booking</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('bookingSection').className='booking-section'; document.getElementById('ticket').className='ticket'">Cancel</button>
+        </div>
+        
+        <div id="ticket" class="ticket">
+            <div class="ticket-header">
+                <div class="ticket-title">✈️ BOARDING PASS</div>
+            </div>
+            <div class="success-message">🎉 Booking Confirmed!</div>
+            <div class="ticket-details">
+                <div class="ticket-item">
+                    <div class="ticket-label">Passenger Name</div>
+                    <div class="ticket-value" id="ticketName"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Email</div>
+                    <div class="ticket-value" id="ticketEmail"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Flight Number</div>
+                    <div class="ticket-value" id="ticketFlight"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Route</div>
+                    <div class="ticket-value" id="ticketRoute"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Date</div>
+                    <div class="ticket-value" id="ticketDate"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Time</div>
+                    <div class="ticket-value" id="ticketTime"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Tickets</div>
+                    <div class="ticket-value" id="ticketCountDisplay"></div>
+                </div>
+                <div class="ticket-item">
+                    <div class="ticket-label">Total Price</div>
+                    <div class="ticket-value" id="ticketPrice"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Flight data as array of objects - NO FUNCTIONS USED
+        var flights = [
+            { number: "FL001", origin: "New York (JFK)", destination: "London (LHR)", price: 450, seats: 120, date: "2026-07-15", time: "10:30 AM" },
+            { number: "FL002", origin: "Los Angeles (LAX)", destination: "Tokyo (NRT)", price: 680, seats: 85, date: "2026-07-18", time: "2:15 PM" },
+            { number: "FL003", origin: "San Francisco (SFO)", destination: "Paris (CDG)", price: 520, seats: 95, date: "2026-07-20", time: "6:45 PM" },
+            { number: "FL004", origin: "Chicago (ORD)", destination: "Dubai (DXB)", price: 750, seats: 60, date: "2026-07-22", time: "11:00 PM" },
+            { number: "FL005", origin: "Miami (MIA)", destination: "Sydney (SYD)", price: 890, seats: 45, date: "2026-07-25", time: "9:30 PM" }
+        ];
+        
+        var bookings = [];
+        var selectedFlightIndex = -1;
+        
+        // Display flights using template strings - NO FUNCTIONS USED
+        var htmlContent = 
+            '<div class="flight-card" onclick="selectedFlightIndex=0; document.getElementById(\'bookingSection\').className=\'booking-section active\'; document.getElementById(\'bookingTitle\').innerHTML=\'Book: FL001 (New York (JFK) → London (LHR))\'; document.getElementById(\'ticket\').className=\'ticket\';">' +
+                '<div class="flight-info"><div class="flight-number">FL001</div><div class="route">New York (JFK) ➝ London (LHR)</div><div class="details">📅 2026-07-15 | ⏰ 10:30 AM</div></div>' +
+                '<div class="price-section"><div class="price">$450</div><div class="seats">120 seats available</div></div>' +
+            '</div>' +
+            '<div class="flight-card" onclick="selectedFlightIndex=1; document.getElementById(\'bookingSection\').className=\'booking-section active\'; document.getElementById(\'bookingTitle\').innerHTML=\'Book: FL002 (Los Angeles (LAX) → Tokyo (NRT))\'; document.getElementById(\'ticket\').className=\'ticket\';">' +
+                '<div class="flight-info"><div class="flight-number">FL002</div><div class="route">Los Angeles (LAX) ➝ Tokyo (NRT)</div><div class="details">📅 2026-07-18 | ⏰ 2:15 PM</div></div>' +
+                '<div class="price-section"><div class="price">$680</div><div class="seats">85 seats available</div></div>' +
+            '</div>' +
+            '<div class="flight-card" onclick="selectedFlightIndex=2; document.getElementById(\'bookingSection\').className=\'booking-section active\'; document.getElementById(\'bookingTitle\').innerHTML=\'Book: FL003 (San Francisco (SFO) → Paris (CDG))\'; document.getElementById(\'ticket\').className=\'ticket\';">' +
+                '<div class="flight-info"><div class="flight-number">FL003</div><div class="route">San Francisco (SFO) ➝ Paris (CDG)</div><div class="details">📅 2026-07-20 | ⏰ 6:45 PM</div></div>' +
+                '<div class="price-section"><div class="price">$520</div><div class="seats">95 seats available</div></div>' +
+            '</div>' +
+            '<div class="flight-card" onclick="selectedFlightIndex=3; document.getElementById(\'bookingSection\').className=\'booking-section active\'; document.getElementById(\'bookingTitle\').innerHTML=\'Book: FL004 (Chicago (ORD) → Dubai (DXB))\'; document.getElementById(\'ticket\').className=\'ticket\';">' +
+                '<div class="flight-info"><div class="flight-number">FL004</div><div class="route">Chicago (ORD) ➝ Dubai (DXB)</div><div class="details">📅 2026-07-22 | ⏰ 11:00 PM</div></div>' +
+                '<div class="price-section"><div class="price">$750</div><div class="seats">60 seats available</div></div>' +
+            '</div>' +
+            '<div class="flight-card" onclick="selectedFlightIndex=4; document.getElementById(\'bookingSection\').className=\'booking-section active\'; document.getElementById(\'bookingTitle\').innerHTML=\'Book: FL005 (Miami (MIA) → Sydney (SYD))\'; document.getElementById(\'ticket\').className=\'ticket\';">' +
+                '<div class="flight-info"><div class="flight-number">FL005</div><div class="route">Miami (MIA) ➝ Sydney (SYD)</div><div class="details">📅 2026-07-25 | ⏰ 9:30 PM</div></div>' +
+                '<div class="price-section"><div class="price">$890</div><div class="seats">45 seats available</div></div>' +
+            '</div>';
+        
+        document.getElementById("flightList").innerHTML = htmlContent;
+    </script>
+</body>
+</html>
